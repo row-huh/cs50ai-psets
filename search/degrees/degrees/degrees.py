@@ -18,9 +18,13 @@ def load_data(directory):
     Load data from CSV files into memory.
     """
     # Load people
-    with open(f"{directory}/people.csv", encoding="utf-8") as f:
+    with open(f"{directory}/people.csv") as f:
         reader = csv.DictReader(f)
-        for row in reader:
+        for row in reader:    
+            """people[row] is a list in the people dictionary which means that
+            one row = one person's detail in the csv
+            and in one row, we have 
+            """
             people[row["id"]] = {
                 "name": row["name"],
                 "birth": row["birth"],
@@ -85,15 +89,46 @@ def main():
 
 
 def shortest_path(source, target):
-    """
-    Returns the shortest list of (movie_id, person_id) pairs
-    that connect the source to the target.
+    # Keep track of number of states explored
+    num_explored = 0
 
-    If no possible path, returns None.
-    """
+    # Initialize frontier to just the starting position
+    start = Node(person_id=source, movie_id=None, parent=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
 
-    # TODO
-    raise NotImplementedError
+    # Initialize an empty explored set
+    explored = set()
+
+    # Keep looping until solution found
+    while True:
+
+        # If nothing left in frontier, then no path
+        if frontier.empty():
+            return None
+
+        # Choose a node from the frontier
+        node = frontier.remove()
+        num_explored += 1
+
+        # If node is the goal, then we have a solution
+        if node.person_id == target:
+            solution = []
+            while node.parent is not None:
+                solution.append((node.movie_id, node.person_id))
+                node = node.parent
+            solution.reverse()
+
+            return solution
+
+        # Mark node as explored
+        explored.add(node.person_id)
+
+        # Add neighbors to frontier
+        for movie, person in neighbors_for_person(node.person_id):
+            if not frontier.contains_person_id(person) and person not in explored:
+                child = Node(person_id=person, movie_id=movie, parent=node)
+                frontier.add(child)
 
 
 def person_id_for_name(name):
