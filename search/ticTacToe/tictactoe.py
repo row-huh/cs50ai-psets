@@ -31,9 +31,9 @@ def player(board):
     # remember - the first turn is of x
     for i in range(len(board)):
         for j in range(len(board)):
-            if j == X:
-                count_x+1
-            elif j == O:
+            if board[i][j] == X:
+                count_x+=1
+            elif board[i][j] == O:
                 count_o+=1
     
     if count_x <= count_o:
@@ -42,16 +42,17 @@ def player(board):
         return O
 
 
+
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    possible_actions = []
+    possible_actions = set()
     
     for i in range(len(board)):
         for j in range(len(board)):
             if board[i][j] == None:
-                possible_actions.append(i, j)
+                possible_actions.add((i, j))
 
     return possible_actions
 
@@ -61,12 +62,16 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    
-    player = player(board)
+    if (action[0] < 0 or action[1] < 0):
+        raise IndexError("Negative Indexes are not allowed")
+    current_player = player(board)
     
     new_board = copy.deepcopy(board)
     
-    new_board[action[0]][action[1]] = player
+    if new_board[action[0]][action[1]] == None:
+        new_board[action[0]][action[1]] = current_player
+    else:
+        raise Exception(f"Invalid Action - {(action[0],action[1])} already has an element {new_board[action[0]][action[1]]}")
 
     return new_board
     
@@ -109,8 +114,10 @@ def terminal(board):
             break
         
     if winner(board):
-        return False
+        return True
     elif empty_spaces:
+        return False
+    else:
         return True
         
 
@@ -120,11 +127,11 @@ def utility(board):
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
     
-    winner = winner(board)
+    winning_player = winner(board)
     
-    if winner == X:
+    if winning_player == X:
         return 1
-    elif winner == O:
+    elif winning_player == O:
         return -1
     else:
         return 0
