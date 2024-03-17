@@ -32,15 +32,14 @@ def player(board):
     for i in range(len(board)):
         for j in range(len(board)):
             if board[i][j] == X:
-                count_x+=1
+                count_x += 1
             elif board[i][j] == O:
-                count_o+=1
+                count_o += 1
     
     if count_x <= count_o:
         return X
     else:
         return O
-
 
 
 def actions(board):
@@ -49,34 +48,38 @@ def actions(board):
     """
     possible_actions = set()
     
-    for i in range(len(board)):
-        for j in range(len(board)):
+    # add the indices of all empty spacees to the set of possible actions
+    for i in range(3):
+        for j in range(3):
             if board[i][j] == None:
                 possible_actions.add((i, j))
 
     return possible_actions
 
 
-
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    
+    # if any element in the tuple of action is negative - raise error
     if (action[0] < 0 or action[1] < 0):
         raise IndexError("Negative Indexes are not allowed")
-    current_player = player(board)
     
+    current_player = player(board)
     new_board = copy.deepcopy(board)
     
+    # if the index denoted by action tuple is empty --> add the player's symbol at that location
     if new_board[action[0]][action[1]] == None:
         new_board[action[0]][action[1]] = current_player
     else:
-        raise Exception(f"Invalid Action - {(action[0],action[1])} already has an element {new_board[action[0]][action[1]]}")
+        # Otherwise, raise invalid move exception
+        raise Exception(
+            f"Invalid Action - {(action[0],action[1])} already has an element {new_board[action[0]][action[1]]}")
 
     return new_board
     
     
-
 def winner(board):
     """
     Returns the winner of the game, if there is one.
@@ -105,6 +108,7 @@ def terminal(board):
     
     empty_spaces = False
     
+    # if there is any empty space in the board, empty_spaces variable is True, otherwise False
     for i in range(len(board)):
         for j in range(len(board)):
             if board[i][j] == None:
@@ -121,7 +125,6 @@ def terminal(board):
         return True
         
 
-
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
@@ -137,12 +140,52 @@ def utility(board):
         return 0
 
 
+best_action = tuple()
+
+
 def minimax(board):
     """
-    Returns the optimal action for the current player on the board.
+    Returns the optimal action (tuple of two indexes) for the current player on the board.
     """
+    alpha = float('-inf')
+    beta = float('inf')
     
-    if terminal(board):
-        return None
+    if player(board) == X:
+        # Return the action associated with the maximum utility
+        return max_value(board, alpha, beta)[1]  
     else:
-        print("IN MINImAx")
+        # Return the action associated with the minimum utility
+        return min_value(board, alpha, beta)[1]  
+
+
+def max_value(board, alpha, beta):
+    if terminal(board):
+        return utility(board), None  # Return utility value and no action
+    v = float('-inf')
+    best_action = None
+    for action in actions(board):
+        new_v, _ = min_value(result(board, action), alpha, beta)
+        if new_v > v:
+            v = new_v
+            best_action = action
+        alpha = max(alpha, v)
+        
+        if beta <= alpha:
+            break
+    return v, best_action
+
+
+def min_value(board, alpha, beta):
+    if terminal(board):
+        return utility(board), None  # Return utility value and no action
+    v = float('inf')
+    best_action = None
+    for action in actions(board):
+        new_v, _ = max_value(result(board, action), alpha, beta)
+        if new_v < v:
+            v = new_v
+            best_action = action
+        beta = min(beta, v)
+        if beta <= alpha:
+            break    
+    return v, best_action
