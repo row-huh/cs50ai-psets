@@ -41,9 +41,21 @@ knowledge1 = And(
 # Puzzle 2
 # A says "We are the same kind."
 # B says "We are of different kinds."
-
+Astatement = And(Implication(AKnave, BKnave), Implication(AKnight, BKnight))
+Bstatement = And(Implication(BKnave, AKnight), Implication(BKnight, AKnave))
 knowledge2 = And(
-    # TODO
+    # A is either a knave or a knight but not both
+    And(Or(AKnave, AKnight), Not(And(AKnave, AKnight))),
+    # B is either a knave or a knight but not both
+    And(Or(BKnave, BKnight), Not(And(BKnave, BKnight))),
+    # if a is a knight, what he said is the truth
+    Implication(AKnight, Astatement),
+    # if a is a knave, what he said is not true
+    Implication(AKnave, Not(Astatement)),
+    # if b is a knight, what he said is the truth
+    Implication(BKnight, Bstatement),
+    # if b is a knave, what he said is not true
+    Implication(BKnave, Not(Bstatement)),
 )
 
 # Puzzle 3
@@ -51,8 +63,29 @@ knowledge2 = And(
 # B says "A said 'I am a knave'."
 # B says "C is a knave."
 # C says "A is a knight."
+Astatement = Or(AKnave, AKnight)
+Bstatement = AKnave
+Bstatement2 = CKnave
+Cstatement = AKnight
 knowledge3 = And(
-    # TODO
+    # A is either a knave or a knight but not both
+    And(Or(AKnave, AKnight), Not(And(AKnave, AKnight))),
+    # B is either a knave or a knight but not both
+    And(Or(BKnave, BKnight), Not(And(BKnave, BKnight))),
+    # C is either a knave or a knight but not both
+    And(Or(CKnave, CKnight), Not(And(CKnave, CKnight))),
+    # if a is a knight, what he said is the truth
+    Implication(AKnight, Astatement),
+    # if a is a knave, what he said is not true
+    Implication(AKnave, Not(Astatement)),
+    # if b is a knight, what he said is the truth
+    Implication(BKnight, And(Bstatement, Bstatement2)),
+    # if b is a knave, what he said is not true
+    Implication(BKnave, Not(And(Bstatement, Bstatement2))),
+    # if c is a knight, what he said is the truth
+    Implication(CKnight, Cstatement),
+    # if C is a knave, what he said is not true
+    Implication(CKnave, Not(Cstatement)),
 )
 
 
