@@ -30,18 +30,18 @@ Astatement = And(AKnave, BKnave)
 knowledge1 = And(
     # A is either a knave or a knight but not both
     And(Or(AKnave, AKnight), Not(And(AKnave, AKnight))),
-        # B is either a knave or a knight but not both
+    # B is either a knave or a knight but not both
     And(Or(BKnave, BKnight), Not(And(BKnave, BKnight))),
-    # if a is a knave, what he said is a lie
-    Implication(AKnave, Not(Astatement)),
     # if a is a knight, what he said is the truth
-    Implication(AKnight, Astatement)
-
+    Implication(AKnight, Astatement),
+    # if a is a knave, what he said is not true
+    Implication(AKnave, Not(Astatement)),
 )
 
 # Puzzle 2
 # A says "We are the same kind."
 # B says "We are of different kinds."
+
 knowledge2 = And(
     # TODO
 )
