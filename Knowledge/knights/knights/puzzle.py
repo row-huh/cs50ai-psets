@@ -22,7 +22,6 @@ knowledge0 = And(
 )
 
 
-
 # Puzzle 1
 # A says "We are both knaves."
 # B says nothing.
