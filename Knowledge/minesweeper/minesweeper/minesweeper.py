@@ -46,11 +46,11 @@ class Minesweeper():
                 else:
                     print("| ", end="")
             print("|")
-        print("--" * self.width + "-")
+        print("--" * self.width + "-")      
 
     def is_mine(self, cell):
         i, j = cell
-        return self.board[i][j]
+        return self.board[i][j]    
 
     def nearby_mines(self, cell):
         """
@@ -87,7 +87,7 @@ class Minesweeper():
 class Sentence():
     """
     Logical statement about a Minesweeper game
-    A sentence consists of a set of board cells,
+    A sentence consists of a set of board cells (which are mines),
     and a count of the number of those cells which are mines.
     """
 
@@ -102,18 +102,23 @@ class Sentence():
         return f"{self.cells} = {self.count}"
 
     def known_mines(self):
-        """
-        Returns the set of all cells in self.cells known to be mines.
-        """
-        raise NotImplementedError
+        # if the number of known cells is equal to number of mines
+        if len(self.cells) == self.count:
+            return self.cells
+        else:
+            return set()
+        
 
+            
     def known_safes(self):
+        #TODO
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
 
+    
     def mark_mine(self, cell):
+        #TODO
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
@@ -121,6 +126,7 @@ class Sentence():
         raise NotImplementedError
 
     def mark_safe(self, cell):
+        #TODO
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
