@@ -176,6 +176,7 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
 
+
     def mark_safe(self, cell):
         """
         Marks a cell as safe, and updates all knowledge
@@ -184,6 +185,7 @@ class MinesweeperAI():
         self.safes.add(cell)
         for sentence in self.knowledge:
             sentence.mark_safe(cell)
+
 
     def add_knowledge(self, cell, count):
         """
@@ -200,7 +202,30 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        raise NotImplementedError
+        
+        # what about the initial number of mines? as in, out of 64 cells - 8 of those are mines?
+        
+        # mark the cell as a move that has been made
+        self.moves_made.add(cell)
+        
+        # mark the cell as safe
+        self.safes.add(cell)
+        # upate sentences that contain cell
+        for sentence in self.knowledge:
+            if cell in sentence.cells:
+                sentence.mark_safe(cell)
+        
+            
+        #PSEUDOCODE FOR CREATING SENTENCES
+        # to add knowledge , you need to find neighbors of a cell
+        # if the cell is in corner, it will have three neighbors, otherwise there will be 8
+        # write a separate function which finds the neighbors of a cell
+        # then based on the neighbor information, you can:
+        # 1) create a new sentence with count as count
+        # 2) remove all those which are known to be either mines or safes
+        # 3) deduce better
+            
+        
 
     def make_safe_move(self):
         """
@@ -211,7 +236,6 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
 
     def make_random_move(self):
         """
@@ -220,4 +244,3 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
