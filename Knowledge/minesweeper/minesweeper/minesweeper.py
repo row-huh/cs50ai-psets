@@ -203,29 +203,39 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
         
-        # what about the initial number of mines? as in, out of 64 cells - 8 of those are mines?
         
         # mark the cell as a move that has been made
         self.moves_made.add(cell)
         
         # mark the cell as safe
         self.safes.add(cell)
-        # upate sentences that contain cell
-        for sentence in self.knowledge:
-            if cell in sentence.cells:
-                sentence.mark_safe(cell)
+
+        # find out the neighbors of the cell and add new sentence to the ai's knowledge base
+        neighbors = self.neighbors(cell)
+        neighbors -= self.safes
+        neighbors -= self.moves_made
+        sentence = Sentence(neighbors, count)
+        print(sentence)
+        self.knowledge.append(sentence)
         
-            
-        #PSEUDOCODE FOR CREATING SENTENCES
-        # to add knowledge , you need to find neighbors of a cell
-        # if the cell is in corner, it will have three neighbors, otherwise there will be 8
-        # write a separate function which finds the neighbors of a cell
-        # then based on the neighbor information, you can:
-        # 1) create a new sentence with count as count
-        # 2) remove all those which are known to be either mines or safes
-        # 3) deduce better
-            
+        print(self.knowledge)
+
+    def neighbors(self, cell):
+        neighbors = set()
         
+        i = cell[0]
+        j = cell[1]
+        
+        for i in range(i-1, i+2):
+            if i >= 0 and i < 8:
+                for j in range(j-1, j+2):
+                    if j >= 0 and j < 8:
+                        if (i, j) not in self.moves_made:
+                            neighbors.add((i, j))
+        
+        return neighbors
+                            
+    
 
     def make_safe_move(self):
         """
