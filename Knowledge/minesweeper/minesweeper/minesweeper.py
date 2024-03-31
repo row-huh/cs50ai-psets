@@ -147,10 +147,6 @@ class Sentence():
 
 
 class MinesweeperAI():
-    """
-    Minesweeper game player
-    """
-
     def __init__(self, height=8, width=8):
 
         # Set initial height and width
@@ -166,7 +162,6 @@ class MinesweeperAI():
 
         # List of sentences about the game known to be true
         self.knowledge = []
-
     def mark_mine(self, cell):
         """
         Marks a cell as a mine, and updates all knowledge
@@ -175,8 +170,6 @@ class MinesweeperAI():
         self.mines.add(cell)
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
-
-
     def mark_safe(self, cell):
         """
         Marks a cell as safe, and updates all knowledge
@@ -203,56 +196,57 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
         
-        
-        # mark the cell as a move that has been made
+
+        # 1) Mark the cell as a move that has been made
         self.moves_made.add(cell)
         
-        # mark the cell as safe
+        # 2) Mark the cell as safe, updating any sentences that contain the cell as well
         if cell not in self.safes:
             self.mark_safe(cell)
-
-        # find out the neighbors of the cell and add new sentence to the ai's knowledge base
-        neighbors = self.neighbors(cell)
-        neighbors -= self.safes
-        neighbors -= self.moves_made
-        newsentence = Sentence(neighbors, count)
-        self.knowledge.append(newsentence)
-        
-        print(self.knowledge)
-        
         for sentence in self.knowledge:
-            # if the sentence is empty - remove it
-            if len(sentence.cells) == 0:
-                self.knowledge.remove(sentence)
+            for cell in sentence.cells:
+                if cell in self.safes:
+                    sentence.cells.remove(cell)
             
-            safes = list(sentence.known_safes())
-            mines = list(sentence.known_mines())
-            for safe in safes:
-                self.mark_safe(safe)
-            for mine in mines:
-                self.mark_mine(mine)
-                
+        # 3) Add a new sentence to the AI's knowledge base based 
+        # on the value of `cell` and `count` 
+        # if count of cell is 0 - then all the neighbors of that cell are safe
+        # if the count of cell is not 0 - then neighbors of that cell = count #
         
-        new_knowledge = []
-        
-        sentence = newsentence
-        for following_sentence in self.knowledge:
-            if len(following_sentence.cells) == 0:
-                self.knowledge.remove(following_sentence)
-            elif sentence == following_sentence:
-                break
-            elif sentence.cells <= following_sentence.cells:
-                unique_set = following_sentence.cells - sentence.cells
-                diff_num = following_sentence.count - sentence.count
-                new_knowledge.append(Sentence(unique_set, diff_num))
+        neighbors = self.get_neighbors(cell)
+        if count == 0:
+            for neighbor in neighbors:
+                self.mark_safe(neighbor)
+        elif len(neighbors) == count:
+            for neighbor in neighbors:
+                self.mark_mine(neighbor) 
+        else:
+            # if any neighbor is a known mine then modify the sentence from
+            # {A, B, C} = 2 - out of which lets say A is a mine - to
+            # {B, c} = 1
+            neighbors -= self.safes
+            for neighbor in neighbors:
+                if neighbor in self.mines:
+                    count -= 1
+            neighbors -= self.mines
             
-            sentence = following_sentence
-        self.knowledge += new_knowledge
+            self.knowledge.append(Sentence(neighbors, count))
+          
+
+      
+        
+            
+        # my program works and actually solves the game, i'm guessing it's my logic, 
+        # we know there are mines when the number of cells are equal to the count, 
+        # we know all cells are safe when the count is zero, we know 
+        # set2 - set1  = count2 - count1 if set1 is a subsest of set2 
+        # and i'm looping these checks whenever there's a change to the knowledge base #
+        
+
+        
 
 
-
-
-    def neighbors(self, cell):
+    def get_neighbors(self, cell):
         neighbors = set()
         
         i, j = cell
@@ -266,13 +260,13 @@ class MinesweeperAI():
         for row in rows:
             if row in height:
                 for col in cols:
+                    print(row, col)
                     if col in width:
                         if (row, col) not in self.moves_made:
                             neighbors.add((row, col))
+        neighbors -= self.safes
+        neighbors -= self.moves_made
         return neighbors
-                            
-    
-
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -286,7 +280,6 @@ class MinesweeperAI():
             if move not in self.moves_made:
                 self.moves_made.add(move)
                 return move
-
     def make_random_move(self):
         """
         Returns a move to make on the Minesweeper board.
@@ -297,5 +290,5 @@ class MinesweeperAI():
 
         for i in range(self.height):
             for j in range(self.width):
-                if (i, j) not in self.moves_made and (i, j)not in self.mines:
+                if (i, j) not in self.moves_made and (i, j) not in self.mines:
                     return (i, j)
