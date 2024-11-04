@@ -139,7 +139,20 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    
+    one_gene_prob = len(one_gene)/3
+    print("Two gene", two_genes)
+    two_gene_prob = len(two_genes)/3
+    print(two_gene_prob)
+    prob_have_trait = len(have_trait)/3
+    
+    print(people)
+    people_set = set(people.keys())
+    print("people", people_set)
+    
+    prob_no_trait = len((people_set-have_trait))/3
+    
+    print("Joint probaility")
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
@@ -161,4 +174,5 @@ def normalize(probabilities):
 
 
 if __name__ == "__main__":
+    
     main()
