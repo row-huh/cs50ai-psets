@@ -140,19 +140,51 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone not in set` have_trait` does not have the trait.
     """
     
-    one_gene_prob = len(one_gene)/3
-    print("Two gene", two_genes)
-    two_gene_prob = len(two_genes)/3
-    print(two_gene_prob)
-    prob_have_trait = len(have_trait)/3
+    # for every person
+        # list their gene count
+        # whether they have a trait 
     
-    print(people)
-    people_set = set(people.keys())
-    print("people", people_set)
     
-    prob_no_trait = len((people_set-have_trait))/3
+    # if they have parents
+        # calculate the probability of parent genes
+        # name it mother prob and father prob - i think
+        # if the parents have 0 gene, then m = 1- m
+        # if 1, then m = 0.5
+        # else if 2, then m = m where m is the mutation probability
+        
+        
+    # otherwise, given the information you know, fetch the corresponding probabilities,
+    # and calculate probabilities for that person
     
-    print("Joint probaility")
+    for person in people:
+        print(person)
+        person_trait = True if person in have_trait else False
+        person_gene = 0
+        if person in two_genes:
+            person_gene = 2
+        elif person in one_gene:
+            person_gene = 1
+        else:
+            person_gene = 0
+            
+            
+        # Given that we now know that a person has trait and the number of genes, we could calculate probs
+        print(person_trait)
+        print(person_gene)
+
+        
+        # if the person has parents then calculate probability otherwise just use the standard ones
+        
+        if people[person]['mother']:
+            print("Mother exists")
+        if people[person]['father']:
+            print("Father exists")
+        
+        
+        
+    print("people with one gene", one_gene)
+    print("people with two gene", two_genes)
+    print("People with trait", have_trait)
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
@@ -174,5 +206,4 @@ def normalize(probabilities):
 
 
 if __name__ == "__main__":
-    
     main()
