@@ -139,104 +139,61 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    
-    # for every person
-        # list their gene count
-        # whether they have a trait 
-    
-    
-    # if they have parents
-        # calculate the probability of parent genes
-        # name it mother prob and father prob - i think
-        # if the parents have 0 gene, then m = 1- m
-        # if 1, then m = 0.5
-        # else if 2, then m = m where m is the mutation probability
-        
-        
-    # otherwise, given the information you know, fetch the corresponding probabilities,
-    # and calculate probabilities for that person
-    
-    # if im not wrong joint variable that will store the total must go here & probabilities must
-    # be added to it at the end of each iteration
-    
-    
-    # setting prob to 1 instead of 0 so that when multiplying by others, the answer does not end up a 0
+    # probabilities must be calculated for each person if im not wrong
     joint_probability = 1
     
-    
     for person in people:
-        person_trait = True if person in have_trait else False
-        person_gene = 2 if person in two_genes else 1 if person in one_gene else 0
-        person_prob = 1     # initial prob - will change soon as its multiplied
-
-        # if the person has parents then calculate probability otherwise just use the standard ones
-        # Mutation doesnt need to be calculated in the mother's and father's case as there is no 'passing down of gene'  
-        
-        if people[person]['mother'] and people[person]['father']:     
-            if people[person]['mother']:
-                mother = people[person]['mother']
-                mother_trait = True if mother in have_trait else False
-                mother_genes = 0
-                if mother in two_genes:
-                    mother_genes = 2
-                elif mother in one_gene:
-                    mother_genes = 1
-                else:
-                    mother_genes = 0
-                    
-                prob_of_mother_gene = PROBS["gene"][mother_genes]
-                prob_of_mother_trait = PROBS["trait"][mother_genes][mother_trait]
-                
-                mother_prob = prob_of_mother_gene * prob_of_mother_trait
-                #joint_probability *= mother_prob
-
-
-            if people[person]['father']:
-                father = people[person]['father']
-                father_trait = True if father in have_trait else False
-                father_genes = 0
-                if father in two_genes:
-                    father_genes = 2
-                elif father in one_gene:
-                    father_genes = 1
-                else:
-                    father_genes = 0
-                    
-                prob_of_father_gene = PROBS["gene"][father_genes]
-                prob_of_father_trait = PROBS["trait"][father_genes][father_trait]
-                
-                father_prob = prob_of_father_gene * prob_of_father_trait
-                #joint_probability += father_prob
+        # find out how many genes a person has
+        if person in two_genes:
+            genes = 2
+        elif person in one_gene:
+            genes = 1
         else:
-            prob_of_person_gene = PROBS["gene"][person_gene]
-            prob_of_person_trait = PROBS["trait"][person_gene][person_trait]
+            genes = 0
+
+        # find out whether they have a trait or not
+        if person in have_trait:
+            trait = True
+        else:
+            trait = False
+        
+        # if they have parents then probability of their genes will be calculated separately
+        m = people[person]['mother']
+        f = people[person]['father']
+        
+        
+        if m and f:
+            m_genes = 2 if m in two_genes else 1 if m in one_gene else 0
+            f_genes = 2 if f in two_genes else 1 if f in one_gene else 0
             
-            person_prob *= prob_of_person_trait * prob_of_person_gene
+            if m_genes == 2:
+                m_prob = 1 - PROBS['mutation']
+            elif m_genes == 1:
+                m_prob = 0.5
+            else:
+                m_prob = PROBS['mutation']
+            
+            if f_genes == 2:
+                f_prob = 1 - PROBS['mutation']
+            elif f_genes == 1:
+                f_prob = 0.5
+            else:
+                f_prob = PROBS['mutation']
+            
+            if genes == 2:
+                person_prob = m_prob * f_prob
+            elif genes == 1:
+                person_prob = ((1 - m_prob) * f_prob) + ((1 - f_prob) * m_prob)
+            else:
+                person_prob = (1-m_prob) * (1-f_prob)
+                
             joint_probability *= person_prob
-            continue
-        
-            
-        m = mother_genes
-        f = father_genes
-        
-        mutation = PROBS["mutation"]
-        
-        if person_gene == 0:
-            prob_of_person_gene = (1 - prob_of_father_gene) * (1 - prob_of_mother_gene)
-            mutation_prob = (1 - mutation)
-        elif person_gene == 1:
-            prob_of_person_gene = (prob_of_mother_gene * (1 - prob_of_father_gene)) + ((1 - prob_of_mother_gene) * prob_of_father_gene)
-            mutation_prob = 0.5
+                
+        # otherwise, standard ones will be used
         else:
-            prob_of_person_gene = prob_of_mother_gene * prob_of_father_gene
-            mutation_prob = mutation
-            
-        prob_of_person_trait = PROBS["trait"][person_gene][person_trait]
-        person_prob *= prob_of_person_gene * prob_of_person_trait * prob_of_mother_gene * prob_of_father_gene * mutation_prob
-        joint_probability *= person_prob
+            person_prob = PROBS['genes'][genes]
+            joint_probability *=  person_prob
         
-    print("Joint probability", joint_probability)
-    return joint_probability
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
