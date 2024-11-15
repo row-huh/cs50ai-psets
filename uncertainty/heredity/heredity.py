@@ -57,7 +57,6 @@ def main():
                 False: 0
             }
         }
-        for person in people
     }
 
     # Loop over all sets of people who might have the trait
@@ -161,6 +160,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         m = people[person]['mother']
         f = people[person]['father']
         
+        person_prob = 1
         
         if m and f:
             m_genes = 2 if m in two_genes else 1 if m in one_gene else 0
@@ -181,18 +181,22 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 f_prob = PROBS['mutation']
             
             if genes == 2:
-                person_prob = m_prob * f_prob
+                person_prob *= m_prob * f_prob
             elif genes == 1:
-                person_prob = ((1 - m_prob) * f_prob) + ((1 - f_prob) * m_prob)
+                person_prob *= ((1 - m_prob) * f_prob) + ((1 - f_prob) * m_prob)
             else:
-                person_prob = (1-m_prob) * (1-f_prob)
+                person_prob *= (1-m_prob) * (1-f_prob)
                 
-            joint_probability *= person_prob
-                
+            
+            person_prob *= PROBS["trait"][genes][trait]
+                                
         # otherwise, standard ones will be used
         else:
-            person_prob = PROBS['genes'][genes]
-            joint_probability *=  person_prob
+            person_prob = PROBS['gene'][genes]
+        
+        joint_probability *=  person_prob
+    
+    return joint_probability
         
 
 
