@@ -162,9 +162,8 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         
         person_prob = 1
         
-        if m and f:
+        if m:
             m_genes = 2 if m in two_genes else 1 if m in one_gene else 0
-            f_genes = 2 if f in two_genes else 1 if f in one_gene else 0
             
             if m_genes == 2:
                 m_prob = 1 - PROBS['mutation']
@@ -172,27 +171,31 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 m_prob = 0.5
             else:
                 m_prob = PROBS['mutation']
-            
+
+        if f: 
+            f_genes = 2 if f in two_genes else 1 if f in one_gene else 0                  
             if f_genes == 2:
                 f_prob = 1 - PROBS['mutation']
             elif f_genes == 1:
                 f_prob = 0.5
             else:
                 f_prob = PROBS['mutation']
-            
+        
+        if f and m:    
             if genes == 2:
                 person_prob *= m_prob * f_prob
             elif genes == 1:
-                person_prob *= ((1 - m_prob) * f_prob) + ((1 - f_prob) * m_prob)
+                person_prob *= (1 - m_prob) * f_prob + (1 - f_prob) * m_prob
             else:
                 person_prob *= (1-m_prob) * (1-f_prob)
                 
-            
-            person_prob *= PROBS["trait"][genes][trait]
-                                
+                                        
         # otherwise, standard ones will be used
         else:
             person_prob = PROBS['gene'][genes]
+        
+        person_prob *= PROBS['trait'][genes][trait]
+
         
         joint_probability *=  person_prob
     
