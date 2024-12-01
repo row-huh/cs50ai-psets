@@ -57,6 +57,7 @@ def main():
                 False: 0
             }
         }
+        for person in people
     }
 
     # Loop over all sets of people who might have the trait
@@ -66,7 +67,7 @@ def main():
         # Check if current set of people violates known information
         fails_evidence = any(
             (people[person]["trait"] is not None and
-             people[person]["trait"] != (person in have_trait))
+            people[person]["trait"] != (person in have_trait))
             for person in names
         )
         if fails_evidence:
@@ -84,6 +85,7 @@ def main():
     normalize(probabilities)
 
     # Print results
+    print("results")
     for person in people:
         print(f"{person}:")
         for field in probabilities[person]:
@@ -210,7 +212,21 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+    
+    for person in probabilities:
+        if person in one_gene:
+            probabilities[person]["gene"][1] += p
+        elif person in two_genes:
+            probabilities[person]["gene"][2] += p
+        else:
+            probabilities[person]["gene"][0] += p
+        
+        
+        if person in have_trait:
+            probabilities[person]["trait"][True] += p
+        else:
+            probabilities[person]["trait"][False] += p
+    
 
 
 def normalize(probabilities):
@@ -218,10 +234,30 @@ def normalize(probabilities):
     Update `probabilities` such that each probability distribution
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
-    raise NotImplementedError
 
+    
+    print(probabilities)
+    
+    for person in probabilities:
+        gene_probabilities = probabilities[person]['gene']
+        gene_total = 0
+        for gene in gene_probabilities:
+            gene_total = gene_total + gene_probabilities[gene]
+        
+        for gene in gene_probabilities:
+            gene_probabilities[gene] = gene_probabilities[gene] / gene_total
+
+        # Normalize trait probabilities
+        trait_probabilities = probabilities[person]['trait']
+        trait_total = 0
+        for trait in trait_probabilities:
+            trait_total = trait_total + trait_probabilities[trait]
+        
+        for trait in trait_probabilities:
+            trait_probabilities[trait] = trait_probabilities[trait] / trait_total      
 
 if __name__ == "__main__":
     main()
+
 def get_probabilities(equation):
     print(equation)
