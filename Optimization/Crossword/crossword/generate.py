@@ -93,13 +93,26 @@ class CrosswordCreator():
         self.ac3()
         return self.backtrack(dict())
 
+
     def enforce_node_consistency(self):
         """
         Update `self.domains` such that each variable is node-consistent.
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+
+        for variable in self.domains:
+            length = variable.length
+
+            words = self.domains[variable]
+            new = self.domains[variable].copy()
+
+            for word in words:
+                if len(word) != length:
+                    new.remove(word)
+
+            self.domains[variable] = new
+
 
     def revise(self, x, y):
         """
