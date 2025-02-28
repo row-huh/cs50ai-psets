@@ -101,6 +101,7 @@ class CrosswordCreator():
          constraints; in this case, the length of the word.)
         """
 
+        
         for variable in self.domains:
             length = variable.length
 
@@ -123,7 +124,31 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        revised = False
+        overlap = self.crossword.overlaps[x, y]
+        
+        # If there's no overlap between variables, no revision needed
+        if overlap is None:
+            return False
+            
+        i, j = overlap  # i is the position in x, j is the position in y
+        
+        # Check each word in x's domain
+        words_to_remove = set()
+        for word_x in self.domains[x]:
+            # Check if there's any word in y's domain that satisfies the constraint
+            if not any(word_x[i] == word_y[j] for word_y in self.domains[y]):
+                words_to_remove.add(word_x)
+                revised = True
+                
+        # Remove incompatible words from x's domain
+        self.domains[x] -= words_to_remove
+        
+        return revised
+        
+
+
+
 
     def ac3(self, arcs=None):
         """
@@ -134,8 +159,18 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
 
+        arcs =  dict()
+
+        for x in self.domains:
+            # find neighbors for each 
+            y = self.crossword.neighbors(x)
+
+            
+            arcs[x] = y
+
+
+        
     def assignment_complete(self, assignment):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
