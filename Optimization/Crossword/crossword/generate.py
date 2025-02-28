@@ -204,7 +204,6 @@ class CrosswordCreator():
         raise NotImplementedError
 
 
-
     def order_domain_values(self, var, assignment):
         """
         Return a list of values in the domain of `var`, in order by
@@ -212,8 +211,34 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        raise NotImplementedError
+        ruled_out_counts = {}
+        
+        for word in self.domains[var]:
+            count = 0
+            
+            if var in assignment:
+                continue
+                
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor in assignment:
+                    continue
+                    
+                overlap = self.crossword.overlaps[var, neighbor]
+                if overlap is None:
+                    continue
+                    
+                var_idx, neighbor_idx = overlap
+                
+                for neighbor_word in self.domains[neighbor]:
+                    if word[var_idx] != neighbor_word[neighbor_idx]:
+                        count += 1
+                        
+            ruled_out_counts[word] = count
+    
+        return sorted(self.domains[var], key=lambda word: ruled_out_counts[word])
 
+
+    
     def select_unassigned_variable(self, assignment):
         """
         Return an unassigned variable not already part of `assignment`.
