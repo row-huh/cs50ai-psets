@@ -195,13 +195,36 @@ class CrosswordCreator():
 
 
 
-
     def consistent(self, assignment):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
+        # Check for duplicate words
+        words_used = set()
+        for var, word in assignment.items():
+            # If this word has already been used, assignment is inconsistent
+            if word in words_used:
+                return False
+            words_used.add(word)
+            
+            # Check word length matches variable length
+            if var.length != len(word):
+                return False
+            
+            # Check for conflicts at overlapping positions
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor in assignment:
+                    # Get the overlap between the variables
+                    overlap = self.crossword.overlaps[var, neighbor]
+                    if overlap:
+                        var_idx, neighbor_idx = overlap
+                        # Check if the letters at the overlap match
+                        if word[var_idx] != assignment[neighbor][neighbor_idx]:
+                            return False
+        
+        # If no inconsistencies found, the assignment is consistent
+        return True
 
 
     def order_domain_values(self, var, assignment):
@@ -238,7 +261,6 @@ class CrosswordCreator():
         return sorted(self.domains[var], key=lambda word: ruled_out_counts[word])
 
 
-    
     def select_unassigned_variable(self, assignment):
         """
         Return an unassigned variable not already part of `assignment`.
@@ -247,7 +269,21 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+        # Find all unassigned variables
+        unassigned = [v for v in self.crossword.variables if v not in assignment]
+        
+        if not unassigned:
+            return None
+        
+        # Choose the variable with the minimum remaining values (MRV)
+        # If tied, use degree heuristic (most constraints with other variables)
+        def key_function(var):
+            # Primary sort: minimum remaining values
+            # Secondary sort: degree (number of neighbors)
+            return (len(self.domains[var]), -len(self.crossword.neighbors(var)))
+        
+        return min(unassigned, key=key_function)
+
 
     def backtrack(self, assignment):
         """
@@ -258,7 +294,22 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+        if self.assignment_complete(assignment):
+            return assignment
+            
+        var = self.select_unassigned_variable(assignment)
+        
+        for value in self.order_domain_values(var, assignment):
+            new_assignment = assignment.copy()
+            new_assignment[var] = value
+            
+            if self.consistent(new_assignment):
+                result = self.backtrack(new_assignment)
+                if result is not None:
+                    return result
+        
+        return None
+
 
 
 def main():
