@@ -127,26 +127,24 @@ class CrosswordCreator():
         revised = False
         overlap = self.crossword.overlaps[x, y]
         
-        # If there's no overlap between variables, no revision needed
+
         if overlap is None:
             return False
             
-        i, j = overlap  # i is the position in x, j is the position in y
+        x_idx, y_idx = overlap  # posistins where overlap occurs
         
-        # Check each word in x's domain
-        words_to_remove = set()
+        to_remove = set()
+        
+        # For each word in x's domain
         for word_x in self.domains[x]:
-            # Check if there's any word in y's domain that satisfies the constraint
-            if not any(word_x[i] == word_y[j] for word_y in self.domains[y]):
-                words_to_remove.add(word_x)
+
+            if not any( word_x[x_idx] == word_y[y_idx] for word_y in self.domains[y]):
+                to_remove.add(word_x)
                 revised = True
                 
-        # Remove incompatible words from x's domain
-        self.domains[x] -= words_to_remove
+        self.domains[x] -= to_remove
         
         return revised
-        
-
 
 
 
@@ -159,17 +157,27 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-
-        arcs =  dict()
-
-        for x in self.domains:
-            # find neighbors for each 
-            y = self.crossword.neighbors(x)
-
+        if arcs is None:
+            queue = [] # using list as a queue
+            for x in self.domains:
+                for y in self.crossword.neighbors(x):
+                    queue.append((x, y))
+        else:
+            queue = list(arcs)
+        
+        while queue:
+            x, y = queue.pop(0)  
             
-            arcs[x] = y
-
-
+            if self.revise(x, y):
+                
+                if len(self.domains[x]) == 0:
+                    return False
+                
+                for z in self.crossword.neighbors(x):
+                    if z != y:
+                        queue.append((z, x))
+        
+        return True
         
     def assignment_complete(self, assignment):
         """
