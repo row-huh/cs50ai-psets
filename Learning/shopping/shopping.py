@@ -1,8 +1,11 @@
 import csv
 import sys
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+
+
 
 TEST_SIZE = 0.4
 
@@ -30,6 +33,33 @@ def main():
     print(f"True Positive Rate: {100 * sensitivity:.2f}%")
     print(f"True Negative Rate: {100 * specificity:.2f}%")
 
+
+def get_mon_num(x):
+    match x:
+        case 'Jan':
+            return 0
+        case 'Feb':
+            return 1
+        case 'Mar':
+            return 2
+        case 'Apr':
+            return 3
+        case 'May':
+            return 4
+        case 'Jun':
+            return 5
+        case 'Jul':
+            return 6
+        case 'Aug':
+            return 7
+        case 'Sep':
+            return 8
+        case 'Oct':
+            return 9
+        case 'Nov':
+            return 10
+        case 'Dec':
+            return 11
 
 def load_data(filename):
     """
@@ -59,7 +89,30 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+
+    # Read data in from file
+    df = pd.read_csv('shopping.csv')
+
+    # convert visitor type 
+    df['VisitorType'] = df['VisitorType'].apply(lambda x: 0 if x == 'Returning_Visitor' else 1)
+
+    # convert weekend
+    df['Weekend'] = df['Weekend'].apply(lambda x: 1 if x == True else 0)
+
+    # convert month
+    df['Month'] = df['Month'].apply(lambda x: get_mon_num(x))
+
+
+    # convert suitable columns to int and float
+    int_cols = ['Administrative', 'Informational', 'ProductRelated', 'Month', 'OperatingSystems', 'Browser', 'Region', 'TrafficType', 'VisitorType', 'Weekend']
+    float_cols = ['Administrative_Duration', 'Informational_Duration', 'ProductRelated_Duration', 'BounceRates', 'ExitRates', 'PageValues', 'SpecialDay']
+
+
+    df[int_cols] = df[int_cols].apply(lambda x: x.astype(int))
+    df[float_cols] = df[float_cols].apply(lambda x : x.astype(int))
+
+
+
 
 
 def train_model(evidence, labels):
