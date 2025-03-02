@@ -4,7 +4,7 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn.preprocessing import StandardScaler
 
 
 TEST_SIZE = 0.4
@@ -137,7 +137,27 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    
+    X = evidence
+    y = labels
+
+    # train test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # scale features 
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create and train the KNN model
+    k = 1
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train_scaled, y_train)
+
+    return knn
+
 
 
 def evaluate(labels, predictions):
