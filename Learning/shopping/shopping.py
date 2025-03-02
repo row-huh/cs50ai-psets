@@ -93,8 +93,9 @@ def load_data(filename):
     # Read data in from file
     df = pd.read_csv('shopping.csv')
 
+
     # convert visitor type 
-    df['VisitorType'] = df['VisitorType'].apply(lambda x: 0 if x == 'Returning_Visitor' else 1)
+    df['VisitorType'] = df['VisitorType'].apply(lambda x: 1 if x == 'Returning_Visitor' else 0)
 
     # convert weekend
     df['Weekend'] = df['Weekend'].apply(lambda x: 1 if x == True else 0)
@@ -103,15 +104,31 @@ def load_data(filename):
     df['Month'] = df['Month'].apply(lambda x: get_mon_num(x))
 
 
+
     # convert suitable columns to int and float
     int_cols = ['Administrative', 'Informational', 'ProductRelated', 'Month', 'OperatingSystems', 'Browser', 'Region', 'TrafficType', 'VisitorType', 'Weekend']
     float_cols = ['Administrative_Duration', 'Informational_Duration', 'ProductRelated_Duration', 'BounceRates', 'ExitRates', 'PageValues', 'SpecialDay']
 
+    for col in int_cols:
+        df[col] = df[col].fillna(0).astype(int)
+
 
     df[int_cols] = df[int_cols].apply(lambda x: x.astype(int))
-    df[float_cols] = df[float_cols].apply(lambda x : x.astype(int))
+    df[float_cols] = df[float_cols].apply(lambda x : x.astype(float))
 
 
+    evidence = []
+    label = []
+
+    for index, row in df.iterrows():
+        evidence_list = row[:-1]
+        l = row[-1]
+        print("-----------Evidence rows:", evidence_list)
+        print("Corresponding label:", l)
+        evidence.append(evidence_list)
+        label.append(l)
+
+    return evidence, label
 
 
 
