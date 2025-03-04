@@ -132,7 +132,6 @@ class NimAI():
 
 
 
-
     def best_future_reward(self, state):
         """
         Given a state `state`, consider all possible `(state, action)`
@@ -143,7 +142,8 @@ class NimAI():
         Q-value in `self.q`. If there are no available actions in
         `state`, return 0.
         """
-        return 3.0
+        
+
 
     def choose_action(self, state, epsilon=True):
         """
@@ -160,7 +160,39 @@ class NimAI():
         If multiple actions have the same Q-value, any of those
         options is an acceptable return value.
         """
-        return 1, 1
+
+        actions = list(Nim.available_actions(state))
+
+        if epsilon:    
+            num = random.random()
+
+            if num < (1 - self.epsilon):   # with prob 1 - epsilon, choose the best action available
+                # choose best action
+                best_action = choose_best_action(self, actions, state)
+                return best_action if best_action else random.choice(tuple(actions))
+            else:
+                return random.choice(tuple(actions))
+        else:
+            return choose_best_action(self=self, actions=actions, state=state)
+
+
+# helper function for choose_action
+def choose_best_action(self, actions, state):
+    max = 0
+    best_action = None
+
+    for action in actions:
+        try:
+            current = self.get_q_value(tuple(state), action)
+        except KeyError:
+            current = 0
+
+        if current > max:
+            best_action = action
+            max = current
+
+    return best_action
+
 
 
 def train(n):
