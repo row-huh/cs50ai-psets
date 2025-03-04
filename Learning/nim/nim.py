@@ -143,6 +143,16 @@ class NimAI():
         `state`, return 0.
         """
         
+        actions = Nim.available_actions(state)
+        max = 0
+
+        for action in actions:
+            current = self.get_q_value(tuple(state), tuple(action))
+
+            if current > max:
+                max = current
+
+        return max
 
 
     def choose_action(self, state, epsilon=True):
