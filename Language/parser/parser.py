@@ -1,6 +1,7 @@
 import nltk
 import sys
 
+
 TERMINALS = """
 Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
 Adv -> "down" | "here" | "never"
@@ -62,7 +63,38 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    raise NotImplementedError
+    
+    sentence = sentence.lower()
+
+    punkt = nltk.tokenize.punkt.PunktLanguageVars()
+    words = punkt.word_tokenize(s=sentence)
+
+    print("initial list of tokenized words", words)
+
+    new_words = []
+
+    for word in words:
+        # confirm that there is atleast one alphabet in each
+        flag = 0
+        for letter in word:
+            if letter.isalpha():
+                flag = 1
+        else:
+            if flag == 0:
+                print(f"{word} removed")
+                continue    # do not add that word to the list
+        
+            if not(letter.isalpha()):
+                #print("old word", word)
+                #print("New word", word[:word.index(letter)])
+                word = word[:word.index(letter)]
+
+        print("adding word", word.lower())
+        new_words.append(word.lower())
+
+
+    print("Final list of new words", new_words)
+    return new_words
 
 
 def np_chunk(tree):
