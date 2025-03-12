@@ -13,10 +13,21 @@ N -> "smile" | "thursday" | "walk" | "we" | "word"
 P -> "at" | "before" | "in" | "of" | "on" | "to"
 V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat"
 V -> "smiled" | "tell" | "were"
+NP -> Det N | N | P N | Adj N | Det Adj N
+VP -> V NP | V | Adv V | V adv | NP Adv V | NP V Adv |NP V |NP VP
+PDet -> P Det | P | Det
 """
 
 NONTERMINALS = """
-S -> N V
+
+S -> VP
+S -> VP NP NP
+S -> VP PDet NP Conj VP
+S -> VP NP Conj VP PDet N Adv
+S -> VP Conj VP
+S -> VP NP NP Conj VP PDet NP
+S -> VP Det Adj Adj Adj N PDet N PDet N
+
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
