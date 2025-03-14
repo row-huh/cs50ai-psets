@@ -13,22 +13,16 @@ N -> "smile" | "thursday" | "walk" | "we" | "word"
 P -> "at" | "before" | "in" | "of" | "on" | "to"
 V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat"
 V -> "smiled" | "tell" | "were"
-NP -> Det N | N | P N | Adj N | Det Adj N
-VP -> V NP | V | Adv V | V adv | NP Adv V | NP V Adv |NP V |NP VP
-PDet -> P Det | P | Det
 """
 
 NONTERMINALS = """
-
-S -> VP
-S -> VP NP NP
-S -> VP PDet NP Conj VP
-S -> VP NP Conj VP PDet N Adv
-S -> VP Conj VP
-S -> VP NP NP Conj VP PDet NP
-S -> VP Det Adj Adj Adj N PDet N PDet N
-
+S -> NP VP | NP VP Conj NP VP | NP VP Conj VP
+NP -> N | Det N | NP P NP | P NP | Det AP N 
+VP -> V | Adv VP | V Adv | VP NP | V NP Adv
+AP -> Adj | AP Adj
+PP -> P NP | PP NP
 """
+
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
 parser = nltk.ChartParser(grammar)
@@ -100,11 +94,9 @@ def preprocess(sentence):
                 #print("New word", word[:word.index(letter)])
                 word = word[:word.index(letter)]
 
-        print("adding word", word.lower())
         new_words.append(word.lower())
 
-
-    print("Final list of new words", new_words)
+    print("list before returning", new_words)
     return new_words
 
 
@@ -115,7 +107,17 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    np = []
+
+    for subtree in tree.subtrees():
+        if subtree.label() == "NP":
+            if not any(descendant.label() == "NP" for descendant in subtree.subtrees() if descendant != subtree):
+                np.append(subtree)
+
+
+    print("NP", np)
+    return np
+
 
 
 if __name__ == "__main__":
