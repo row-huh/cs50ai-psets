@@ -15,6 +15,7 @@ V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat"
 V -> "smiled" | "tell" | "were"
 """
 
+
 NONTERMINALS = """
 S -> NP VP | NP VP Conj NP VP | NP VP Conj VP
 NP -> N | Det N | NP P NP | P NP | Det AP N 
@@ -117,7 +118,6 @@ def np_chunk(tree):
 
     print("NP", np)
     return np
-
 
 
 if __name__ == "__main__":
