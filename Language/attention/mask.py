@@ -46,7 +46,16 @@ def get_mask_token_index(mask_token_id, inputs):
     `None` if not present in the `inputs`.
     """
     # TODO: Implement this function
-    raise NotImplementedError
+
+    print("\n\n\nMask token id: ", mask_token_id)
+
+    token_ids = [int(x) for x in inputs['input_ids'].numpy().flatten()]
+
+    for i in range(len(token_ids)):
+        if token_ids[i] == mask_token_id:
+            return i
+    else:
+        return None
 
 
 
